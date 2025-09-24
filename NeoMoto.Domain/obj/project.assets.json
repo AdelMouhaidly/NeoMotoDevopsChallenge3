@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\user\\Documents\\ProjetoNet\\ProjetoNetMottu\\NeoMoto.Domain\\NeoMoto.Domain.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Documents\\DevopsChallenge3\\ProjetoNetMottu\\NeoMoto.Domain\\NeoMoto.Domain.csproj",
       "projectName": "NeoMoto.Domain",
-      "projectPath": "C:\\Users\\user\\Documents\\ProjetoNet\\ProjetoNetMottu\\NeoMoto.Domain\\NeoMoto.Domain.csproj",
+      "projectPath": "C:\\Users\\user\\Documents\\DevopsChallenge3\\ProjetoNetMottu\\NeoMoto.Domain\\NeoMoto.Domain.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\user\\Documents\\ProjetoNet\\ProjetoNetMottu\\NeoMoto.Domain\\obj\\",
+      "outputPath": "C:\\Users\\user\\Documents\\DevopsChallenge3\\ProjetoNetMottu\\NeoMoto.Domain\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config"

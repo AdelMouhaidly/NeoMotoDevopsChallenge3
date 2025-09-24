@@ -1,94 +1,35 @@
-# NeoMoto API
+# NeoMoto API - DevOps Challenge 3
 
-## Descrição
+## Descrição da Solução
 
-NeoMoto é uma API RESTful para gestão da frota da Mottu (motos), organizada por filiais e com histórico de manutenções. Desenvolvida com .NET 9 Minimal API e PostgreSQL.
+NeoMoto é uma API RESTful para gestão da frota da Mottu (motos), organizada por filiais e com histórico de manutenções. Desenvolvida com .NET 9 Minimal API e PostgreSQL, containerizada com Docker e deployada na nuvem Azure usando Azure Container Registry (ACR) + Azure Container Instances (ACI).
 
-## Domínio e Entidades
+## Benefícios para o Negócio
 
-### Filiais
+### Problemas Resolvidos:
 
-- Unidades físicas que organizam a frota
-- Campos: Id, Nome, Endereco, Cidade, UF
-- Relacionamento: Uma filial pode ter várias motos
+- **Gestão Centralizada**: Controle unificado de toda a frota de motos distribuída em múltiplas filiais
+- **Rastreabilidade**: Histórico completo de manutenções para cada veículo, permitindo análises de custo e performance
+- **Escalabilidade**: Arquitetura em nuvem que permite crescimento conforme demanda
+- **Disponibilidade**: Deploy em containers garante alta disponibilidade e facilidade de manutenção
 
-### Motos
+### Melhorias Trazidas:
 
-- Veículos da frota associados a uma filial
-- Campos: Id, Placa (única), Modelo, Ano, FilialId
-- Relacionamento: Uma moto pertence a uma filial e pode ter várias manutenções
-
-### Manutenções
-
-- Eventos de manutenção vinculados a uma moto
-- Campos: Id, MotoId, Data, Descricao, Custo
-- Relacionamento: Uma manutenção pertence a uma moto
-
-## Funcionalidades Implementadas
-
-- CRUD completo para 3 entidades (Create, Read, Update, Delete)
-- Paginação com pageNumber e pageSize
-- HATEOAS com links relacionais (self, filial, motos, manutencoes)
-- Status codes HTTP adequados (200, 201, 204, 400, 404)
-- Swagger/OpenAPI com documentação completa
-- Validações de dados e integridade referencial
-- Relacionamentos entre entidades com cascade/restrict
+- **Redução de Custos**: Melhor planejamento de manutenções preventivas
+- **Eficiência Operacional**: Consultas rápidas e paginadas para grandes volumes de dados
+- **Tomada de Decisão**: Relatórios e estatísticas em tempo real
+- **Integração**: HATEOAS permite navegação intuitiva entre recursos relacionados
 
 ## Tecnologias
 
 - .NET 9.0 (Minimal API)
 - Entity Framework Core 8.0
 - PostgreSQL 15
-- Docker e Docker Compose
+- Docker e Azure Container Registry
+- Azure Container Instances
 - Swagger/OpenAPI
-- xUnit (testes)
 
-## Requisitos
-
-- .NET SDK 9.0 ou superior
-- Docker Desktop instalado e rodando
-- PowerShell (para scripts automatizados)
-
-## Como Executar
-
-### Opção 1 - Processo Completo Manual
-
-**Passo 1: Iniciar PostgreSQL**
-
-```bash
-docker-compose up -d
-```
-
-**Passo 2: Restaurar dependências**
-
-```bash
-dotnet restore
-```
-
-**Passo 3: Compilar o projeto**
-
-```bash
-dotnet build
-```
-
-**Passo 4: Aplicar migrations no banco**
-
-```bash
-dotnet ef database update --project NeoMoto.Infrastructure --startup-project NeoMoto.Api
-```
-
-**Passo 5: Executar a API**
-
-```bash
-dotnet run --project NeoMoto.Api --urls http://localhost:5010
-```
-
-**Passo 6: Acessar documentação**
-
-- Swagger UI: http://localhost:5010/swagger
-- API Base URL: http://localhost:5010/api
-
-## Endpoints da API
+## CRUD Completo Implementado
 
 ### Filiais
 
@@ -97,7 +38,6 @@ dotnet run --project NeoMoto.Api --urls http://localhost:5010
 - `POST /api/filiais` - Criar nova filial
 - `PUT /api/filiais/{id}` - Atualizar filial
 - `DELETE /api/filiais/{id}` - Deletar filial
-- `GET /api/filiais/{id}/motos` - Listar motos de uma filial
 
 ### Motos
 
@@ -106,7 +46,6 @@ dotnet run --project NeoMoto.Api --urls http://localhost:5010
 - `POST /api/motos` - Criar nova moto
 - `PUT /api/motos/{id}` - Atualizar moto
 - `DELETE /api/motos/{id}` - Deletar moto
-- `GET /api/motos/{id}/manutencoes` - Listar manutenções de uma moto
 
 ### Manutenções
 
@@ -116,162 +55,150 @@ dotnet run --project NeoMoto.Api --urls http://localhost:5010
 - `PUT /api/manutencoes/{id}` - Atualizar manutenção
 - `DELETE /api/manutencoes/{id}` - Deletar manutenção
 
-## Exemplos de Uso
+## Banco de Dados na Nuvem
 
-### Criar Filial
+- **PostgreSQL 15** rodando em Azure Container Instance
+- **Localização**: East US
+- **Recursos**: 1 CPU, 2GB RAM
+- **Dados de Exemplo**: Mais de 2 registros em cada tabela para demonstração
+
+## PASSO A PASSO PARA DEPLOY
+
+### IMPORTANTE: NÃO use docker-compose para deploy na Azure!
+
+- O arquivo `docker-compose.yml` é APENAS para desenvolvimento local
+- Para deploy na Azure, use APENAS os scripts `build.sh` e `deploy.sh`
+
+### Pré-requisitos
+
+- Azure CLI instalado e configurado
+- Docker Desktop instalado e rodando
+- Conta Azure ativa
+
+### 1. Preparação
 
 ```bash
-POST /api/filiais
-Content-Type: application/json
-
-{
-  "nome": "Filial Norte",
-  "endereco": "Rua das Flores 123",
-  "cidade": "Sao Paulo",
-  "uf": "SP"
-}
+git clone https://github.com/[SEU-USUARIO]/DevopsChallenge3-NeoMoto.git
+cd DevopsChallenge3-NeoMoto/ProjetoNetMottu
+az login
 ```
 
-### Criar Moto
+### 2. Build e Push para ACR
 
 ```bash
-POST /api/motos
-Content-Type: application/json
-
-{
-  "placa": "ABC1234",
-  "modelo": "Honda CG 160",
-  "ano": 2023,
-  "filialId": "guid-da-filial"
-}
+./build.sh
 ```
 
-### Criar Manutenção
+**O que faz**: Cria Resource Group, ACR, faz build das imagens Docker e envia para Azure Container Registry
+
+### 3. Deploy no ACI
 
 ```bash
-POST /api/manutencoes
-Content-Type: application/json
-
-{
-  "motoId": "guid-da-moto",
-  "data": "2024-09-24T10:30:00Z",
-  "descricao": "Revisao dos 10000 km",
-  "custo": 250.00
-}
+./deploy.sh
 ```
 
-### Listar com Paginação
+**O que faz**: Cria containers PostgreSQL e API no Azure Container Instances, configura conexão entre eles
+
+### 4. Verificar Deploy
 
 ```bash
-GET /api/motos?pageNumber=1&pageSize=10
-GET /api/filiais?pageNumber=2&pageSize=5
+az container list --resource-group rg-neomoto-rm557863 --output table
 ```
 
-## Testes
+## COMO TESTAR A APLICAÇÃO
 
-### Executar todos os testes
+### URLs da Aplicação
+
+- **Base URL**: `http://neomoto-api-rm557863.eastus.azurecontainer.io:8080`
+- **Swagger UI**: `http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/swagger`
+
+### Teste Rápido
 
 ```bash
-dotnet test
+# Testar se API está respondendo
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais
 ```
 
-### Executar testes com detalhes
+### Teste CRUD Completo
+
+**1. Criar Filial**
 
 ```bash
-dotnet test --logger console --verbosity normal
+curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Filial Teste","endereco":"Rua Teste 123","cidade":"São Paulo","uf":"SP"}'
 ```
 
-### Testes implementados
-
-- Smoke tests da API
-- Testes de integração com PostgreSQL
-- Validação do Swagger/OpenAPI
-
-## Gerenciamento do Docker
-
-### Comandos básicos
+**2. Listar Filiais**
 
 ```bash
-# Iniciar PostgreSQL
-docker-compose up -d
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais
+```
 
-# Parar PostgreSQL
-docker-compose down
+**3. Criar Moto (use o ID da filial retornado)**
 
-# Ver logs do PostgreSQL
-docker-compose logs postgres
+```bash
+curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos \
+  -H "Content-Type: application/json" \
+  -d '{"placa":"TEST123","modelo":"Honda CG 160","ano":2024,"filialId":"[ID_DA_FILIAL]"}'
+```
 
-# Resetar dados (cuidado - apaga tudo)
-docker-compose down -v
+**4. Criar Manutenção (use o ID da moto retornado)**
 
+```bash
+curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes \
+  -H "Content-Type: application/json" \
+  -d '{"motoId":"[ID_DA_MOTO]","data":"2024-09-24T10:30:00Z","descricao":"Teste manutenção","custo":99.99}'
+```
+
+## Arquitetura na Azure
+
+```
+Azure Resource Group (rg-neomoto-rm557863)
+├── Azure Container Registry (acrneomotorm557863)
+│   ├── neomoto-api:v1.0
+│   └── neomoto-postgres:v1.0
+└── Azure Container Instances
+    ├── aci-neomoto-db-rm557863 (PostgreSQL)
+    └── aci-neomoto-api-rm557863 (API .NET)
+```
+
+## Comandos de Monitoramento
+
+```bash
 # Ver status dos containers
-docker-compose ps
+az container list --resource-group rg-neomoto-rm557863 --output table
+
+# Ver logs da API
+az container logs --resource-group rg-neomoto-rm557863 --name aci-neomoto-api-rm557863
+
+# Ver logs do banco
+az container logs --resource-group rg-neomoto-rm557863 --name aci-neomoto-db-rm557863
+
+# DELETAR TODOS OS RECURSOS
+az group delete --name rg-neomoto-rm557863 --yes --no-wait
 ```
 
-### Configuração do PostgreSQL
+## Segurança Implementada
 
-- **Usuário:** neomoto_user
-- **Senha:** neomoto_pass123
-- **Database:** neomoto
-- **Porta:** 5432
-- **Volume persistente:** postgres_data
-
-## Testando a API via PowerShell/CMD
-
-### Listar filiais
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:5010/api/filiais" -Method GET
-```
-
-### Criar filial
-
-```powershell
-$body = '{"nome":"Filial Teste","endereco":"Rua Teste 123","cidade":"Sao Paulo","uf":"SP"}'
-Invoke-RestMethod -Uri "http://localhost:5010/api/filiais" -Method POST -Body $body -ContentType "application/json"
-```
-
-### Atualizar filial
-
-```powershell
-$body = '{"id":"guid-aqui","nome":"Filial Atualizada","endereco":"Rua Nova 456","cidade":"Sao Paulo","uf":"SP"}'
-Invoke-RestMethod -Uri "http://localhost:5010/api/filiais/{id}" -Method PUT -Body $body -ContentType "application/json"
-```
-
-### Deletar filial
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:5010/api/filiais/{id}" -Method DELETE
-```
+- **Container não-root**: Aplicação roda com usuário `appuser` (UID 1001)
+- **Imagens oficiais**: Microsoft .NET e PostgreSQL oficiais
+- **Health checks**: Monitoramento automático da saúde dos containers
 
 ## Estrutura do Projeto
 
 ```
 ProjetoNetMottu/
-├── NeoMoto.Api/                 # API principal (Minimal API)
-├── NeoMoto.Domain/              # Entidades do domínio
-├── NeoMoto.Infrastructure/      # DbContext e configurações EF
-├── NeoMoto.Tests/              # Testes automatizados
-├── docker-compose.yml          # Configuração PostgreSQL
-└── README.md                   # Esta documentação
+├── Dockerfile                  # Container da API .NET
+├── Dockerfile.postgres         # Container PostgreSQL customizado
+├── build.sh                    # Script de build para ACR
+├── deploy.sh                   # Script de deploy para ACI
+├── script_bd.sql              # DDL completo do banco
+├── NeoMoto.Api/                # API principal
+├── NeoMoto.Domain/             # Entidades do domínio
+├── NeoMoto.Infrastructure/     # DbContext e configurações EF
+└── NeoMoto.Tests/              # Testes automatizados
 ```
-
-## Arquitetura
-
-### Padrão Utilizado
-
-- **Minimal API** para endpoints REST
-- **Clean Architecture** com separação de responsabilidades
-- **Entity Framework Core** com Code First
-- **PostgreSQL** como banco de dados
-
-### Justificativa da Arquitetura
-
-- **Simplicidade:** Minimal API reduz boilerplate
-- **Performance:** Menos overhead que controllers tradicionais
-- **Manutenibilidade:** Separação clara entre camadas
-- **Escalabilidade:** PostgreSQL suporta alta concorrência
-- **Portabilidade:** Docker facilita deployment
 
 ## Integrantes do Projeto
 
@@ -279,34 +206,19 @@ ProjetoNetMottu/
 - **Adel Mouhaidly** - RM557705
 - **Tiago Augusto Desiderato** - RM558485
 
-## Status do Projeto
+## Resumo dos Comandos
 
-- [x] CRUD completo para 3 entidades
-- [x] Paginação implementada
-- [x] HATEOAS com links relacionais
-- [x] Swagger/OpenAPI documentado
-- [x] Testes automatizados funcionando
-- [x] PostgreSQL integrado
-- [x] Docker configurado
-- [x] Validações de dados
-- [x] Status codes HTTP adequados
+```bash
+# Deploy completo
+git clone [REPO_URL]
+cd DevopsChallenge3-NeoMoto/ProjetoNetMottu
+az login
+./build.sh
+./deploy.sh
 
-## Solução de Problemas
+# Teste
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais
 
-### Erro "Docker não encontrado"
-
-1. Instale o Docker Desktop
-2. Certifique-se que está rodando
-3. Reinicie o terminal
-
-### Erro de compilação
-
-1. Verifique se tem .NET 9 SDK instalado
-2. Execute: `dotnet --version`
-3. Execute: `dotnet restore` e `dotnet build`
-
-### Erro de conexão com banco
-
-1. Verifique se PostgreSQL está rodando: `docker-compose ps`
-2. Verifique logs: `docker-compose logs postgres`
-3. Reaplique migrations: `dotnet ef database update --project NeoMoto.Infrastructure --startup-project NeoMoto.Api`
+# Limpeza
+az group delete --name rg-neomoto-rm557863 --yes --no-wait
+```

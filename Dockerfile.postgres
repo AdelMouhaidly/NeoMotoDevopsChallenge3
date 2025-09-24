@@ -1,0 +1,50 @@
+# =============================================================================
+# PostgreSQL Customizado - Dockerfile
+# Imagem oficial do PostgreSQL com configurações específicas para NeoMoto
+# =============================================================================
+
+FROM postgres:15-alpine
+
+# Metadados
+LABEL maintainer="NeoMoto Team"
+LABEL description="PostgreSQL customizado para NeoMoto API"
+
+# Criar usuário não-root adicional para melhor segurança
+RUN addgroup -g 1001 -S pggroup && \
+    adduser -u 1001 -S pguser -G pggroup
+
+# Configurações específicas do PostgreSQL
+ENV POSTGRES_DB=neomoto
+ENV POSTGRES_USER=neomoto_user
+ENV POSTGRES_PASSWORD=neomoto_pass123
+
+# Configurações de performance
+ENV POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_stat_statements
+ENV POSTGRES_MAX_CONNECTIONS=100
+ENV POSTGRES_SHARED_BUFFERS=256MB
+
+# Copiar script de inicialização personalizado
+COPY <<EOF /docker-entrypoint-initdb.d/01-init.sql
+-- Script de inicialização do banco NeoMoto
+-- Criado automaticamente durante build da imagem
+
+-- Extensões úteis
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
+
+-- Configurações de timezone
+SET timezone = 'UTC';
+
+-- Comentário informativo
+COMMENT ON DATABASE neomoto IS 'Banco de dados da aplicação NeoMoto - Gestão de Frota de Motos';
+EOF
+
+# Health check personalizado
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD pg_isready -U \$POSTGRES_USER -d \$POSTGRES_DB || exit 1
+
+# Expor porta padrão do PostgreSQL
+EXPOSE 5432
+
+# Volume para dados persistentes
+VOLUME ["/var/lib/postgresql/data"]
