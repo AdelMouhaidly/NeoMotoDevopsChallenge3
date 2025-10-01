@@ -62,12 +62,7 @@ NeoMoto é uma API RESTful para gestão da frota da Mottu (motos), organizada po
 - **Recursos**: 1 CPU, 2GB RAM
 - **Dados de Exemplo**: Mais de 2 registros em cada tabela para demonstração
 
-## PASSO A PASSO PARA DEPLOY
-
-### IMPORTANTE: NÃO use docker-compose para deploy na Azure!
-
-- O arquivo `docker-compose.yml` é APENAS para desenvolvimento local
-- Para deploy na Azure, use APENAS os scripts `build.sh` e `deploy.sh`
+## 🚀 Como Rodar a Aplicação
 
 ### Pré-requisitos
 
@@ -75,53 +70,56 @@ NeoMoto é uma API RESTful para gestão da frota da Mottu (motos), organizada po
 - Docker Desktop instalado e rodando
 - Conta Azure ativa
 
-### 1. Preparação
+### Deploy Rápido (3 comandos)
 
 ```bash
-git clone https://github.com/[SEU-USUARIO]/DevopsChallenge3-NeoMoto.git
-cd DevopsChallenge3-NeoMoto/ProjetoNetMottu
+# 1. Login no Azure
 az login
-```
 
-### 2. Build e Push para ACR
-
-```bash
+# 2. Build e Push para ACR
 ./build.sh
-```
 
-**O que faz**: Cria Resource Group, ACR, faz build das imagens Docker e envia para Azure Container Registry
-
-### 3. Deploy no ACI
-
-```bash
+# 3. Deploy no ACI
 ./deploy.sh
 ```
 
-**O que faz**: Cria containers PostgreSQL e API no Azure Container Instances, configura conexão entre eles
-
-### 4. Verificar Deploy
+### Verificar Deploy
 
 ```bash
+# Ver status dos containers
 az container list --resource-group rg-neomoto-rm557863 --output table
 ```
 
-## COMO TESTAR A APLICAÇÃO
-
 ### URLs da Aplicação
 
-- **Base URL**: `http://neomoto-api-rm557863.eastus.azurecontainer.io:8080`
+- **API Base**: `http://neomoto-api-rm557863.eastus.azurecontainer.io:8080`
 - **Swagger UI**: `http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/swagger`
 
+## 🧪 COMO TESTAR A APLICAÇÃO
+
 ### Teste Rápido
+
+**Para Linux/Mac (curl):**
 
 ```bash
 # Testar se API está respondendo
 curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais
 ```
 
+**Para Windows PowerShell:**
+
+```powershell
+# Testar se API está respondendo
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais" -Method GET
+```
+
 ### Teste CRUD Completo
 
-**1. Criar Filial**
+## API de Filiais
+
+**1. Criar Filial (POST)**
+
+**Linux/Mac (curl):**
 
 ```bash
 curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais \
@@ -129,27 +127,369 @@ curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filia
   -d '{"nome":"Filial Teste","endereco":"Rua Teste 123","cidade":"São Paulo","uf":"SP"}'
 ```
 
-**2. Listar Filiais**
+**Windows PowerShell:**
 
-```bash
-curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais" -Method POST -ContentType "application/json" -Body '{"nome":"Filial Teste","endereco":"Rua Teste 123","cidade":"São Paulo","uf":"SP"}'
 ```
 
-**3. Criar Moto (use o ID da filial retornado)**
+**Resposta esperada:**
+
+```json
+{
+  "id": "9560ad19-183a-4e3b-aa99-88663dff367a",
+  "nome": "Filial Teste",
+  "endereco": "Rua Teste 123",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "_links": {
+    "self": "/api/filiais/9560ad19-183a-4e3b-aa99-88663dff367a"
+  }
+}
+```
+
+**2. Listar Filiais (GET)**
+
+**Linux/Mac (curl):**
 
 ```bash
+# Listar todas as filiais
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais
+
+# Listar com paginação (página 1, 10 itens por página)
+curl "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais?pageNumber=1&pageSize=10"
+```
+
+**Windows PowerShell:**
+
+```powershell
+# Listar todas as filiais
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais" -Method GET
+
+# Listar com paginação
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais?pageNumber=1&pageSize=10" -Method GET
+```
+
+**3. Buscar Filial por ID (GET)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]" -Method GET
+```
+
+**4. Atualizar Filial (PUT)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl -X PUT http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL] \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Filial Atualizada","endereco":"Rua Atualizada 456","cidade":"Rio de Janeiro","uf":"RJ"}'
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]" -Method PUT -ContentType "application/json" -Body '{"nome":"Filial Atualizada","endereco":"Rua Atualizada 456","cidade":"Rio de Janeiro","uf":"RJ"}'
+```
+
+**5. Deletar Filial (DELETE)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl -X DELETE http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]" -Method DELETE
+```
+
+## API de Motos
+
+**1. Criar Moto (POST)**
+
+**Linux/Mac (curl):**
+
+```bash
+# IMPORTANTE: Use o ID retornado na criação da filial
 curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos \
   -H "Content-Type: application/json" \
   -d '{"placa":"TEST123","modelo":"Honda CG 160","ano":2024,"filialId":"[ID_DA_FILIAL]"}'
+
+# Exemplo com GUID real:
+# curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos \
+#   -H "Content-Type: application/json" \
+#   -d '{"placa":"TEST123","modelo":"Honda CG 160","ano":2024,"filialId":"12345678-1234-1234-1234-123456789012"}'
 ```
 
-**4. Criar Manutenção (use o ID da moto retornado)**
+**Windows PowerShell:**
+
+```powershell
+# IMPORTANTE: Use o ID retornado na criação da filial
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos" -Method POST -ContentType "application/json" -Body '{"placa":"TEST123","modelo":"Honda CG 160","ano":2024,"filialId":"[ID_DA_FILIAL]"}'
+```
+
+**2. Listar Motos (GET)**
+
+**Linux/Mac (curl):**
 
 ```bash
+# Listar todas as motos
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos
+
+# Listar com paginação
+curl "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos?pageNumber=1&pageSize=10"
+
+# Listar motos de uma filial específica
+curl "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]/motos"
+```
+
+**Windows PowerShell:**
+
+```powershell
+# Listar todas as motos
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos" -Method GET
+
+# Listar com paginação
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos?pageNumber=1&pageSize=10" -Method GET
+
+# Listar motos de uma filial específica
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/[ID_DA_FILIAL]/motos" -Method GET
+```
+
+**3. Buscar Moto por ID (GET)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]" -Method GET
+```
+
+**4. Atualizar Moto (PUT)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl -X PUT http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO] \
+  -H "Content-Type: application/json" \
+  -d '{"placa":"UPD123","modelo":"Yamaha Fazer 250","ano":2023,"filialId":"[ID_DA_FILIAL]"}'
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]" -Method PUT -ContentType "application/json" -Body '{"placa":"UPD123","modelo":"Yamaha Fazer 250","ano":2023,"filialId":"[ID_DA_FILIAL]"}'
+```
+
+**5. Deletar Moto (DELETE)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl -X DELETE http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]" -Method DELETE
+```
+
+## API de Manutenções
+
+**1. Criar Manutenção (POST)**
+
+**Linux/Mac (curl):**
+
+```bash
+# IMPORTANTE: Use o ID retornado na criação da moto
 curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes \
   -H "Content-Type: application/json" \
-  -d '{"motoId":"[ID_DA_MOTO]","data":"2024-09-24T10:30:00Z","descricao":"Teste manutenção","custo":99.99}'
+  -d '{"motoId":"[ID_DA_MOTO]","data":"2024-09-24T10:30:00Z","descricao":"Troca de óleo","custo":99.99}'
+
+# Exemplo com GUID real:
+# curl -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes \
+#   -H "Content-Type: application/json" \
+#   -d '{"motoId":"12345678-1234-1234-1234-123456789012","data":"2024-09-24T10:30:00Z","descricao":"Troca de óleo","custo":99.99}'
 ```
+
+**Windows PowerShell:**
+
+```powershell
+# IMPORTANTE: Use o ID retornado na criação da moto
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes" -Method POST -ContentType "application/json" -Body '{"motoId":"[ID_DA_MOTO]","data":"2024-09-24T10:30:00Z","descricao":"Troca de óleo","custo":99.99}'
+```
+
+**2. Listar Manutenções (GET)**
+
+**Linux/Mac (curl):**
+
+```bash
+# Listar todas as manutenções
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes
+
+# Listar com paginação
+curl "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes?pageNumber=1&pageSize=10"
+
+# Listar manutenções de uma moto específica
+curl "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]/manutencoes"
+```
+
+**Windows PowerShell:**
+
+```powershell
+# Listar todas as manutenções
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes" -Method GET
+
+# Listar com paginação
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes?pageNumber=1&pageSize=10" -Method GET
+
+# Listar manutenções de uma moto específica
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/[ID_DA_MOTO]/manutencoes" -Method GET
+```
+
+**3. Buscar Manutenção por ID (GET)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/[ID_DA_MANUTENCAO]
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/[ID_DA_MANUTENCAO]" -Method GET
+```
+
+**4. Atualizar Manutenção (PUT)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl -X PUT http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/[ID_DA_MANUTENCAO] \
+  -H "Content-Type: application/json" \
+  -d '{"motoId":"[ID_DA_MOTO]","data":"2024-09-25T14:00:00Z","descricao":"Revisão completa","custo":250.00}'
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/[ID_DA_MANUTENCAO]" -Method PUT -ContentType "application/json" -Body '{"motoId":"[ID_DA_MOTO]","data":"2024-09-25T14:00:00Z","descricao":"Revisão completa","custo":250.00}'
+```
+
+**5. Deletar Manutenção (DELETE)**
+
+**Linux/Mac (curl):**
+
+```bash
+curl -X DELETE http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/[ID_DA_MANUTENCAO]
+```
+
+**Windows PowerShell:**
+
+```powershell
+Invoke-RestMethod -Uri "http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/[ID_DA_MANUTENCAO]" -Method DELETE
+```
+
+## Troubleshooting - Problemas Comuns
+
+### ❌ **Erro: "Parâmetros de paginação inválidos"**
+
+- **Causa**: Usar `page` em vez de `pageNumber`
+- **Solução**: Use `pageNumber=1&pageSize=10` em vez de `page=1&pageSize=10`
+
+### ❌ **Erro: "Filial inexistente" ou "Moto inexistente"**
+
+- **Causa**: Usar ID inválido ou não existente
+- **Solução**:
+  1. Primeiro crie a filial e copie o ID retornado
+  2. Use esse ID para criar a moto
+  3. Use o ID da moto para criar manutenções
+
+### ❌ **Erro: "Placa já cadastrada"**
+
+- **Causa**: Tentando criar moto com placa que já existe
+- **Solução**: Use uma placa diferente (ex: TEST124, TEST125, etc.)
+
+### ❌ **Erro: "Id do corpo difere do parâmetro"**
+
+- **Causa**: No PUT, o ID na URL deve ser igual ao ID no JSON
+- **Solução**: Certifique-se que ambos os IDs são iguais
+
+### ✅ **Como obter IDs corretos:**
+
+```bash
+# 1. Criar filial e capturar ID
+FILIAL_RESPONSE=$(curl -s -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Filial Demo","endereco":"Av. Demo 123","cidade":"São Paulo","uf":"SP"}')
+echo "Resposta da filial: $FILIAL_RESPONSE"
+
+# 2. Extrair ID (se tiver jq instalado)
+FILIAL_ID=$(echo $FILIAL_RESPONSE | jq -r '.id')
+echo "ID da filial: $FILIAL_ID"
+```
+
+## Teste de Sequência Completa
+
+**Exemplo de fluxo completo:**
+
+```bash
+# 1. Criar filial
+FILIAL_ID=$(curl -s -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Filial Demo","endereco":"Av. Demo 123","cidade":"São Paulo","uf":"SP"}' | jq -r '.id')
+
+# 2. Criar moto na filial
+MOTO_ID=$(curl -s -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos \
+  -H "Content-Type: application/json" \
+  -d "{\"placa\":\"DEMO123\",\"modelo\":\"Honda CG 160\",\"ano\":2024,\"filialId\":\"$FILIAL_ID\"}" | jq -r '.id')
+
+# 3. Criar manutenção na moto
+MANUTENCAO_ID=$(curl -s -X POST http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes \
+  -H "Content-Type: application/json" \
+  -d "{\"motoId\":\"$MOTO_ID\",\"data\":\"2024-09-24T10:30:00Z\",\"descricao\":\"Manutenção inicial\",\"custo\":150.00}" | jq -r '.id')
+
+# 4. Listar tudo criado
+echo "Filial criada: $FILIAL_ID"
+echo "Moto criada: $MOTO_ID"
+echo "Manutenção criada: $MANUTENCAO_ID"
+
+# 5. Verificar dados
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/filiais/$FILIAL_ID
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/motos/$MOTO_ID
+curl http://neomoto-api-rm557863.eastus.azurecontainer.io:8080/api/manutencoes/$MANUTENCAO_ID
+```
+
+## Arquitetura da Solução
+
+![Arquitetura DevOps - NeoMoto API](ArquiteturaNeoMoto.jpg)
+
+A imagem acima ilustra a arquitetura DevOps completa da solução NeoMoto API, detalhando o fluxo desde o desenvolvimento local até a implantação e monitoramento em ambiente Azure.
+
+**Principais Componentes:**
+
+- **Desenvolvimento Local:** Utiliza Git para versionamento e Docker Compose para um ambiente de desenvolvimento consistente
+- **Pipeline CI/CD (Azure):** Automatiza o processo de build (Docker Build da API e PostgreSQL), armazenamento de imagens no Azure Container Registry (ACR) e deploy no Azure Container Instances (ACI)
+- **Infraestrutura Azure (Produção):** A aplicação é executada em Azure Container Instances, com containers para API (.NET 9) e PostgreSQL, incluindo monitoramento e configurações de segurança
+- **Fluxos e Endpoints:** Detalha os endpoints da API para gestão de filiais, motos e manutenções, o schema do banco de dados PostgreSQL e a stack tecnológica utilizada
 
 ## Arquitetura na Azure
 
@@ -206,7 +546,7 @@ ProjetoNetMottu/
 - **Adel Mouhaidly** - RM557705
 - **Tiago Augusto Desiderato** - RM558485
 
-## Resumo dos Comandos
+## 📋 Resumo dos Comandos
 
 ```bash
 # Deploy completo
