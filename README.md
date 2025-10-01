@@ -546,7 +546,7 @@ ProjetoNetMottu/
 - **Adel Mouhaidly** - RM557705
 - **Tiago Augusto Desiderato** - RM558485
 
-## 📋 Resumo dos Comandos
+##  Resumo dos Comandos
 
 ```bash
 # Deploy completo
